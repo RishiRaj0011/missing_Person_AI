@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Missing Person Finder{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<section class="dashboard-header">
+    <div class="container">
+        <div class="dashboard-header-content">
+            <div>
+                <h1 class="dashboard-title">Welcome back, {{ current_user.username }}!</h1>
+                <p class="dashboard-subtitle">Manage your missing person cases and track AI search progress from your centralized dashboard.</p>
+            </div>
+            <a href="{{ url_for('main.register_case') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-plus"></i>
+                New Case
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="container dashboard-content">
+    <!-- Stats Cards -->
+    <div class="dashboard-stats">
+        <div class="card">
+            <div class="card-body dashboard-stat-card">
+                <div class="dashboard-stat-icon dashboard-stat-icon-primary">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div>
+                    <div class="dashboard-stat-number">{{ user_stats.total_cases or 0 }}</div>
+                    <div class="dashboard-stat-label">Total Cases</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body dashboard-stat-card">
+                <div class="dashboard-stat-icon dashboard-stat-icon-warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <div class="dashboard-stat-number dashboard-stat-number-warning">{{ user_stats.active_cases or 0 }}</div>
+                    <div class="dashboard-stat-label">Active Cases</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body dashboard-stat-card">
+                <div class="dashboard-stat-icon dashboard-stat-icon-success">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div>
+                    <div class="dashboard-stat-number dashboard-stat-number-success">{{ user_stats.total_sightings or 0 }}</div>
+                    <div class="dashboard-stat-label">AI Sightings</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body dashboard-stat-card">
+                <div class="dashboard-stat-icon dashboard-stat-icon-info">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <div class="dashboard-stat-number dashboard-stat-number-info">{{ user_stats.completed_cases or 0 }}</div>
+                    <div class="dashboard-stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-main">
+        <!-- Recent Cases -->
+        <div class="card">
+            <div class="card-header dashboard-card-header">
+                <h3 class="dashboard-card-title">
+                    <i class="fas fa-history"></i>
+                    Recent Cases
+                </h3>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-outline btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_cases %}
+                    {% for case in recent_cases %}
+                    <div class="dashboard-case-item {% if not loop.last %}dashboard-case-item-border{% endif %}">
+                        <div class="dashboard-case-info">
+                            <div class="dashboard-case-avatar">
+                                {% if case.target_images %}
+                                    <img src="{{ url_for('static', filename=case.target_images[0].image_path) }}" 
+                                         class="dashboard-case-image">
+                                {% else %}
+                                    <div class="dashboard-case-initial">
+                                        {{ case.person_name[0].upper() }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h5 class="dashboard-case-name">{{ case.person_name }}</h5>
+                                <div class="dashboard-case-meta">
+                                    <i class="fas fa-calendar"></i>{{ case.created_at.strftime('%B %d, %Y') }}
+                                    {% if case.sightings %}
+                                        <span class="dashboard-case-sightings"><i class="fas fa-eye"></i>{{ case.sightings|length }} sightings</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-{{ case.status.lower() }}">{{ case.status }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="dashboard-empty-state">
+                        <i class="fas fa-folder-open dashboard-empty-icon"></i>
+                        <h4 class="dashboard-empty-title">No cases yet</h4>
+                        <p class="dashboard-empty-text">Create your first case to start searching for missing persons.</p>
+                        <a href="{{ url_for('main.register_case') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Create First Case
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="dashboard-card-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h3>
+            </div>
+            <div class="card-body dashboard-actions">
+                <a href="{{ url_for('main.register_case') }}" class="btn btn-primary dashboard-action-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    New Case
+                </a>
+                
+                <a href="{{ url_for('main.profile') }}" class="btn btn-outline dashboard-action-btn">
+                    <i class="fas fa-folder-open"></i>
+                    My Cases
+                </a>
+                
+                <a href="{{ url_for('main.about') }}" class="btn btn-outline dashboard-action-btn">
+                    <i class="fas fa-question-circle"></i>
+                    Help Center
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="card dashboard-how-it-works">
+        <div class="card-header">
+            <h3 class="dashboard-card-title">
+                <i class="fas fa-lightbulb"></i>
+                How Our AI Technology Works
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="dashboard-steps">
+                <div class="dashboard-step">
+                    <div class="dashboard-step-number">1</div>
+                    <h5>Upload Photos</h5>
+                    <p>Provide clear, recent photos of the missing person</p>
+                </div>
+                
+                <div class="dashboard-step">
+                    <div class="dashboard-step-number">2</div>
+                    <h5>Add Search Videos</h5>
+                    <p>Upload surveillance footage or crowd videos</p>
+                </div>
+                
+                <div class="dashboard-step">
+                    <div class="dashboard-step-number">3</div>
+                    <h5>AI Analysis</h5>
+                    <p>Advanced facial recognition analyzes matches</p>
+                </div>
+                
+                <div class="dashboard-step">
+                    <div class="dashboard-step-number">4</div>
+                    <h5>Get Results</h5>
+                    <p>Receive detailed results with confidence scores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

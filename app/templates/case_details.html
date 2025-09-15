@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="case-details-container">
+    <div class="case-header">
+        <h1 class="case-title">{{ case.person_name }}</h1>
+        <p class="case-subtitle">Case #{{ case.id }} - Missing Person Report</p>
+        <span class="status-badge status-{{ case.status.lower() }}">{{ case.status }}</span>
+    </div>
+
+    <div class="case-content">
+        <div class="main-details">
+            <div class="case-info-card">
+                <h3 class="info-title">Personal Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value">{{ case.person_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Age</div>
+                        <div class="info-value">{{ case.age or 'Unknown' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="case-info-card">
+                <h3 class="info-title">Case Details</h3>
+                <div class="info-item">
+                    <div class="info-label">Last Seen Location</div>
+                    <div class="info-value">{{ case.last_seen_location or 'Not specified' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Date Missing</div>
+                    <div class="info-value">{{ case.date_missing.strftime('%B %d, %Y at %I:%M %p') if case.date_missing else 'Not specified' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Priority</div>
+                    <div class="info-value">{{ case.priority }}</div>
+                </div>
+                {% if case.details %}
+                <div class="info-item">
+                    <div class="info-label">Additional Details</div>
+                    <div class="info-value">{{ case.details }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if case.target_images %}
+            <div class="case-info-card">
+                <h3 class="info-title">Uploaded Photos</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                    {% for image in case.target_images %}
+                    <img src="{{ url_for('static', filename=image.image_path) }}" 
+                         alt="Photo of {{ case.person_name }}" 
+                         style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gray-300);">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="sidebar">
+            <div class="case-info-card">
+                <h3 class="info-title">Case Statistics</h3>
+                <div class="info-item">
+                    <div class="info-label">Total Sightings</div>
+                    <div class="info-value">{{ case.total_sightings }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">High Confidence Matches</div>
+                    <div class="info-value">{{ case.high_confidence_sightings }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Created</div>
+                    <div class="info-value">{{ case.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Last Updated</div>
+                    <div class="info-value">{{ case.updated_at.strftime('%B %d, %Y') }}</div>
+                </div>
+            </div>
+
+            <div class="case-info-card">
+                <h3 class="info-title">Actions</h3>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+                {% if case.status not in ['Resolved', 'Withdrawn'] %}
+                <form method="POST" action="{{ url_for('main.withdraw_case', case_id=case.id) }}" 
+                      style="margin-top: 1rem;" 
+                      onsubmit="return confirm('Are you sure you want to withdraw this case?')">
+                    <button type="submit" class="btn" style="background: #dc2626; color: white;">Withdraw Case</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

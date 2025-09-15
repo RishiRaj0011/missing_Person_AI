@@ -1,0 +1,596 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Admin Panel{% endblock %}
+
+{% block content %}
+<!-- Professional Admin Users Header -->
+<div class="admin-page-header">
+    <div class="container">
+        <div class="admin-page-header-content">
+            <div class="admin-page-header-text">
+                <div class="admin-page-badge">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </div>
+                <h1>User Administration</h1>
+                <p>Comprehensive user oversight, account management, and access control</p>
+            </div>
+            <div class="admin-page-header-actions">
+                <a href="{{ url_for('admin.export_users') if 'admin.export_users' in url_for.__globals__ else '#' }}" class="btn btn-ghost">
+                    <i class="fas fa-download"></i> Export Data
+                </a>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Professional Search and Filters -->
+    <div class="search-filter-card">
+        <form method="GET">
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label class="form-label">Search Users</label>
+                    <input type="text" class="form-control" name="search" 
+                           value="{{ search or '' }}" placeholder="Search by username or email...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status Filter</label>
+                    <select class="form-control form-select" name="status">
+                        <option value="">All Status</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Users</option>
+                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive Users</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role Filter</label>
+                    <select class="form-control form-select" name="role">
+                        <option value="">All Roles</option>
+                        <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Administrators</option>
+                        <option value="user" {% if role_filter == 'user' %}selected{% endif %}>Regular Users</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sort By</label>
+                    <select class="form-control form-select" name="sort">
+                        <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Join Date</option>
+                        <option value="username" {% if sort_by == 'username' %}selected{% endif %}>Username</option>
+                        <option value="email" {% if sort_by == 'email' %}selected{% endif %}>Email</option>
+                        <option value="last_login" {% if sort_by == 'last_login' %}selected{% endif %}>Last Login</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Order</label>
+                    <div class="flex gap-2">
+                        <select class="form-control form-select" name="order" style="flex: 1;">
+                            <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                            <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <div class="filter-actions-left">
+                    {% if search or status_filter or role_filter %}
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-ghost">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="filter-actions-right">
+                    <div class="filter-stats">
+                        <span class="badge badge-primary">{{ users.total if users else 0 }} total users</span>
+                        {% if users and users.pages > 1 %}
+                            <span class="badge badge-secondary">Page {{ users.page }} of {{ users.pages }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Professional Users Table -->
+    <div class="data-table">
+        <div class="data-table-header">
+            <h2 class="data-table-title">User Directory</h2>
+            <div class="data-table-actions">
+                {% if search %}
+                    <span class="badge badge-info">{{ users.total if users else 0 }} results for "{{ search }}"</span>
+                {% endif %}
+                <a href="{{ url_for('admin.export_users') if 'admin.export_users' in url_for.__globals__ else '#' }}" class="btn btn-ghost btn-sm">
+                    <i class="fas fa-download"></i> Export
+                </a>
+            </div>
+        </div>
+        
+        {% if users and users.items %}
+            <div class="table-responsive">
+                <table class="professional-table">
+                    <thead>
+                        <tr>
+                            <th>User Information</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Cases</th>
+                            <th>Activity</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.items %}
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        {{ user.username[0].upper() }}
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="user-name">
+                                            <a href="{{ url_for('admin.user_detail', user_id=user.id) if 'admin.user_detail' in url_for.__globals__ else '#' }}">
+                                                {{ user.username }}
+                                            </a>
+                                        </div>
+                                        <div class="user-email">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="status-indicator {% if user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                    <div class="status-dot"></div>
+                                    <span>{% if user.is_active %}Active{% else %}Inactive{% endif %}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.is_admin %}
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-crown"></i> Administrator
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-primary">User</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="case-stats">
+                                    <span class="case-count">{{ user.cases|length if user.cases else 0 }}</span>
+                                    {% if user.cases and user.cases|length > 0 %}
+                                        <div class="case-breakdown">
+                                            {{ user.cases|selectattr('status', 'equalto', 'Active')|list|length }} active
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="activity-info">
+                                    {% if user.last_login %}
+                                        <div class="last-login">{{ user.last_login.strftime('%b %d, %Y') }}</div>
+                                        <div class="login-count">{{ user.login_count or 0 }} logins</div>
+                                    {% else %}
+                                        <div class="no-login">Never logged in</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="join-date">{{ user.created_at.strftime('%b %d, %Y') }}</div>
+                            </td>
+                            <td>
+                                {% if user.id != current_user.id %}
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('admin.send_message', user_id=user.id) if 'admin.send_message' in url_for.__globals__ else '#' }}" 
+                                           class="action-btn" title="Send Message">
+                                            <i class="fas fa-envelope"></i>
+                                        </a>
+                                        
+                                        <form method="POST" style="display: inline;">
+                                            <button type="submit" 
+                                                    formaction="{{ url_for('admin.toggle_admin', user_id=user.id) if 'admin.toggle_admin' in url_for.__globals__ else '#' }}" 
+                                                    class="action-btn {% if user.is_admin %}danger{% else %}success{% endif %}"
+                                                    title="{% if user.is_admin %}Revoke Admin{% else %}Grant Admin{% endif %}">
+                                                <i class="fas {% if user.is_admin %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
+                                            </button>
+                                        </form>
+                                        
+                                        <form method="POST" style="display: inline;" 
+                                              onsubmit="return confirm('Delete user {{ user.username }}? This action cannot be undone.')">
+                                            <button type="submit" 
+                                                    formaction="{{ url_for('admin.delete_user', user_id=user.id) if 'admin.delete_user' in url_for.__globals__ else '#' }}" 
+                                                    class="action-btn danger" title="Delete User">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span class="current-user-badge">
+                                        <i class="fas fa-user-shield"></i> Current User
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if users.pages > 1 %}
+                <div class="card-footer">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if users.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin.users', page=users.prev_num, search=search) }}">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in users.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != users.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('admin.users', page=page_num, search=search) }}">
+                                                {{ page_num }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if users.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin.users', page=users.next_num, search=search) }}">
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+        {% else %}
+            <!-- Professional Empty State -->
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2 class="empty-state-title">No Users Found</h2>
+                {% if search %}
+                    <p class="empty-state-description">
+                        No users match your search criteria "{{ search }}". Try adjusting your filters or search terms.
+                    </p>
+                    <div class="empty-state-actions">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-primary">View All Users</a>
+                    </div>
+                {% else %}
+                    <p class="empty-state-description">
+                        No users have registered yet. Users will appear here once they create accounts.
+                    </p>
+                    <div class="empty-state-actions">
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    <!-- Professional User Statistics -->
+    {% if users and users.items %}
+    <div class="admin-stats-grid">
+        <div class="admin-stat-card">
+            <div class="stat-icon primary">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number text-primary">{{ users.total if users else 0 }}</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-sublabel">Registered accounts</div>
+        </div>
+        
+        <div class="admin-stat-card">
+            <div class="stat-icon success">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-number text-success">{{ users.items|selectattr('is_active')|list|length if users and users.items else 0 }}</div>
+            <div class="stat-label">Active Users</div>
+            <div class="stat-sublabel">Currently active</div>
+        </div>
+        
+        <div class="admin-stat-card">
+            <div class="stat-icon warning">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="stat-number text-warning">{{ users.items|selectattr('is_admin')|list|length if users and users.items else 0 }}</div>
+            <div class="stat-label">Administrators</div>
+            <div class="stat-sublabel">Admin privileges</div>
+        </div>
+        
+        <div class="admin-stat-card">
+            <div class="stat-icon info">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="stat-number text-info">{{ total_cases or 0 }}</div>
+            <div class="stat-label">Total Cases</div>
+            <div class="stat-sublabel">All user cases</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* Professional Admin Users Page Styles */
+.admin-page-header {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+    color: white;
+    padding: var(--space-12) 0;
+    margin-bottom: var(--space-8);
+}
+
+.admin-page-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+}
+
+.admin-page-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    margin-bottom: var(--space-4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-page-header h1 {
+    color: white;
+    font-size: var(--font-size-4xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+}
+
+.admin-page-header p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: var(--font-size-lg);
+    margin: 0;
+}
+
+.admin-page-header-actions {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+/* User Table Specific Styles */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--primary-600);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.user-name a {
+    font-weight: 600;
+    color: var(--gray-900);
+    text-decoration: none;
+}
+
+.user-name a:hover {
+    color: var(--primary-600);
+    text-decoration: underline;
+}
+
+.user-email {
+    font-size: var(--font-size-sm);
+    color: var(--gray-500);
+}
+
+.case-stats {
+    text-align: center;
+}
+
+.case-count {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--gray-900);
+    display: block;
+}
+
+.case-breakdown {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    margin-top: var(--space-1);
+}
+
+.activity-info {
+    text-align: center;
+}
+
+.last-login {
+    font-size: var(--font-size-sm);
+    color: var(--gray-900);
+    font-weight: 500;
+}
+
+.login-count {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    margin-top: var(--space-1);
+}
+
+.no-login {
+    font-size: var(--font-size-sm);
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.join-date {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    text-align: center;
+}
+
+.current-user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+/* Filter Actions Layout */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-actions-left {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.filter-actions-right {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.filter-stats {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+}
+
+/* Badge Variants */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-primary {
+    background: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.badge-secondary {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.badge-success {
+    background: var(--secondary-100);
+    color: var(--secondary-700);
+}
+
+.badge-danger {
+    background: var(--error-100);
+    color: var(--error-700);
+}
+
+.badge-warning {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.badge-info {
+    background: var(--info-100);
+    color: var(--info-700);
+}
+
+/* Enhanced Statistics Cards */
+.admin-stat-card .stat-icon.primary {
+    background: var(--primary-100);
+    color: var(--primary-600);
+}
+
+.admin-stat-card .stat-icon.success {
+    background: var(--secondary-100);
+    color: var(--secondary-600);
+}
+
+.admin-stat-card .stat-icon.warning {
+    background: var(--warning-100);
+    color: var(--warning-600);
+}
+
+.admin-stat-card .stat-icon.info {
+    background: var(--info-100);
+    color: var(--info-600);
+}
+
+.text-primary { color: var(--primary-600) !important; }
+.text-success { color: var(--secondary-600) !important; }
+.text-warning { color: var(--warning-600) !important; }
+.text-info { color: var(--info-600) !important; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-page-header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-6);
+    }
+    
+    .user-info {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-2);
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+        gap: var(--space-4);
+        align-items: stretch;
+    }
+    
+    .filter-actions-right {
+        justify-content: center;
+    }
+}
+</style>
+
+{% endblock %}

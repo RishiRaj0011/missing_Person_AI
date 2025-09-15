@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Case Details: {{ case.person_name }}</h2>
+        <a href="{{ url_for('admin.cases') }}" class="btn btn-secondary">Back to Cases</a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Case Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>ID:</strong> {{ case.id }}</p>
+                    <p><strong>Person Name:</strong> {{ case.person_name }}</p>
+                    <p><strong>Age:</strong> {{ case.age or 'Unknown' }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge 
+                            {% if case.status == 'Queued' %}bg-secondary
+                            {% elif case.status == 'Processing' %}bg-warning
+                            {% elif case.status == 'Completed' %}bg-success
+                            {% elif case.status == 'Error' %}bg-danger
+                            {% endif %}">
+                            {{ case.status }}
+                        </span>
+                    </p>
+                    <p><strong>Priority:</strong> {{ case.priority }}</p>
+                    <p><strong>Created by:</strong> {{ case.creator.username }}</p>
+                    <p><strong>Created:</strong> {{ case.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    {% if case.completed_at %}
+                    <p><strong>Completed:</strong> {{ case.completed_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    {% endif %}
+                    <p><strong>Last Seen:</strong> {{ case.last_seen_location or 'Unknown' }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Target Images:</strong> {{ case.target_images|length }}</p>
+                    <p><strong>Search Videos:</strong> {{ case.search_videos|length }}</p>
+                    <p><strong>Total Sightings:</strong> {{ case.total_sightings }}</p>
+                    <p><strong>High Confidence Sightings:</strong> {{ case.high_confidence_sightings }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if case.details %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Details</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ case.details }}</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if case.clothing_description %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Clothing Description</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ case.clothing_description }}</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Processing Logs</h5>
+        </div>
+        <div class="card-body">
+            {% if logs %}
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No processing logs available.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        {% if case.status in ['Error', 'Completed'] %}
+        <form method="POST" style="display: inline;">
+            <button type="submit" formaction="{{ url_for('admin.requeue_case', case_id=case.id) }}" 
+                    class="btn btn-warning">Re-queue for Processing</button>
+        </form>
+        {% endif %}
+        <form method="POST" style="display: inline;" onsubmit="return confirm('Delete this case permanently?')">
+            <button type="submit" formaction="{{ url_for('admin.delete_case', case_id=case.id) }}" 
+                    class="btn btn-danger">Delete Case</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

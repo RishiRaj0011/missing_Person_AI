@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { font-family: 'Inter', sans-serif; }
+
+.cases-header {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cases-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">📁 Case Management</h1>
+                <p class="mb-0">Monitor and manage all missing person cases</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📋 All Cases</h5>
+            <span class="badge bg-primary">{{ cases|length }} total cases</span>
+        </div>
+        <div class="card-body">
+            {% if cases %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Person Name</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Sightings</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for case in cases %}
+                            <tr>
+                                <td><strong>#{{ case.id }}</strong></td>
+                                <td>{{ case.person_name }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #6366f1); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8em; margin-right: 8px;">
+                                            {{ case.creator.username[0].upper() }}
+                                        </div>
+                                        {{ case.creator.username }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if case.status == 'Queued' %}bg-secondary
+                                        {% elif case.status == 'Processing' %}bg-warning
+                                        {% elif case.status == 'Active' %}bg-info
+                                        {% elif case.status == 'Resolved' %}bg-success
+                                        {% elif case.status == 'Withdrawn' %}bg-dark
+                                        {% else %}bg-danger
+                                        {% endif %}">
+                                        {{ case.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if case.priority == 'Low' %}bg-info
+                                        {% elif case.priority == 'Medium' %}bg-primary
+                                        {% elif case.priority == 'High' %}bg-warning
+                                        {% elif case.priority == 'Critical' %}bg-danger
+                                        {% endif %}">
+                                        {{ case.priority }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">{{ case.total_sightings }}</span>
+                                    {% if case.high_confidence_sightings > 0 %}
+                                        <small class="text-muted d-block">{{ case.high_confidence_sightings }} high confidence</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ case.created_at.strftime('%m/%d/%Y') }}</small><br>
+                                    <small class="text-muted">{{ case.created_at.strftime('%I:%M %p') }}</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('admin.case_detail', case_id=case.id) }}" 
+                                           class="btn btn-sm btn-outline-info" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if case.status in ['Error', 'Completed'] %}
+                                        <form method="POST" style="display: inline;">
+                                            <button type="submit" 
+                                                    formaction="{{ url_for('admin.requeue_case', case_id=case.id) }}" 
+                                                    class="btn btn-sm btn-warning" title="Re-queue">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="POST" style="display: inline;" 
+                                              onsubmit="return confirm('Delete case for {{ case.person_name }}? This action cannot be undone.')">
+                                            <button type="submit" 
+                                                    formaction="{{ url_for('admin.delete_case', case_id=case.id) }}" 
+                                                    class="btn btn-sm btn-danger" title="Delete Case">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-5">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No cases have been submitted yet</h5>
+                    <p class="text-muted">When users register missing person cases, they will appear here for management and monitoring.</p>
+                    <div class="mt-4">
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary ms-2">
+                            <i class="fas fa-users"></i> Manage Users
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Case Statistics -->
+    {% if cases %}
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ cases|length }}</h3>
+                    <p class="mb-0">Total Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ cases|selectattr('status', 'equalto', 'Active')|list|length }}</h3>
+                    <p class="mb-0">Active Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ cases|selectattr('status', 'equalto', 'Resolved')|list|length }}</h3>
+                    <p class="mb-0">Resolved Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ cases|sum(attribute='total_sightings') }}</h3>
+                    <p class="mb-0">Total Sightings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

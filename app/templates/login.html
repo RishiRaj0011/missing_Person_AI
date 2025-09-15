@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - Missing Person Finder{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h2 class="mb-2">Welcome Back</h2>
+                <p class="mb-0">Sign in to access your missing person cases</p>
+            </div>
+            
+            <div class="auth-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            {{ form.username(class="form-control", placeholder="Enter your username") }}
+                        </div>
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            {{ form.password(class="form-control", placeholder="Enter your password") }}
+                        </div>
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            {{ form.remember_me(class="form-check-input") }}
+                            {{ form.remember_me.label(class="form-check-label") }}
+                        </div>
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-primary w-100 btn-lg") }}
+                </form>
+            </div>
+            
+            <div class="auth-footer">
+                <p class="mb-0">Don't have an account? <a href="{{ url_for('main.register') }}" class="text-primary fw-semibold">Create one here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

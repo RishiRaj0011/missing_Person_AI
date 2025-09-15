@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Missing Person Finder - AI-Powered Search Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Find Missing Persons with AI Technology</h1>
+            <p>Our advanced facial recognition platform helps reunite families using cutting-edge artificial intelligence. Trusted by law enforcement and families worldwide.</p>
+            
+            <div class="hero-buttons">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('main.register') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-rocket"></i>
+                        Get Started Free
+                    </a>
+                    
+                {% else %}
+                    <a href="{{ url_for('main.register_case') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-plus"></i>
+                        Register New Case
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-brain"></i></div>
+                <div class="stat-label">Advanced Facial Recognition</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-cogs"></i></div>
+                <div class="stat-label">24/7 Automated Scanning</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-label">Secure User Authentication</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="stat-label">Scalable Architecture</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #007bff; /* Or another color that fits your theme */
+    }
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<!-- Features Section -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <h2>Powerful AI Technology</h2>
+            <p class="lead">Advanced features designed to help find missing persons quickly and accurately</p>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="feature-title">AI Recognition</h3>
+                <p class="feature-description">State-of-the-art deep learning algorithms analyze facial features with 95%+ accuracy, even in challenging conditions.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h3 class="feature-title">Video Analysis</h3>
+                <p class="feature-description">Process surveillance footage, crowd videos, and social media content to identify potential matches across multiple sources.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="feature-title">Real-time Processing</h3>
+                <p class="feature-description">Get results in minutes, not hours. Our cloud infrastructure processes cases 24/7 with instant notifications.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Privacy & Security</h3>
+                <p class="feature-description">Enterprise-grade encryption and privacy controls ensure your sensitive data is protected at all times.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Mobile Optimized</h3>
+                <p class="feature-description">Access your cases and receive updates from any device. Our responsive design works perfectly on mobile.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="feature-title">Expert Support</h3>
+                <p class="feature-description">Our team of experts is available to help you optimize your search strategy and interpret results.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>How It Works</h2>
+            <p class="lead">Simple 4-step process to start finding missing persons</p>
+        </div>
+        
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h4>Upload Photos</h4>
+                <p>Provide clear, recent photos of the missing person from different angles for better AI recognition.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h4>Add Search Videos</h4>
+                <p>Upload surveillance footage or crowd videos where the person might appear.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h4>AI Analysis</h4>
+                <p>Our advanced facial recognition AI analyzes and matches faces automatically with high precision.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h4>Get Results</h4>
+                <p>Receive detailed results with timestamps, locations, and confidence scores within minutes.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Section -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <h2>Trusted by Organizations Worldwide</h2>
+            <p class="lead">Law enforcement agencies, NGOs, and families trust our platform</p>
+        </div>
+        
+        <div class="trust-grid">
+            <div class="card">
+                <div class="card-body trust-card">
+                    <i class="fas fa-shield-alt trust-icon trust-icon-success"></i>
+                    <h4>Law Enforcement</h4>
+                    <p>Used by police departments and investigative agencies for official missing person cases.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body trust-card">
+                    <i class="fas fa-heart trust-icon trust-icon-danger"></i>
+                    <h4>NGOs & Charities</h4>
+                    <p>Supporting humanitarian organizations in their mission to reunite families.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body trust-card">
+                    <i class="fas fa-users trust-icon trust-icon-warning"></i>
+                    <h4>Families</h4>
+                    <p>Empowering families with advanced technology to find their missing loved ones.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+    <div class="container">
+        <div class="cta-section">
+            <h2>Ready to Start Your Search?</h2>
+            <p>Join thousands of families who trust our AI-powered platform to help find their missing loved ones.</p>
+            
+            <div class="cta-buttons">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('main.register') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-rocket"></i>
+                        Get Started Free
+                    </a>
+                    
+                {% else %}
+                    <a href="{{ url_for('main.register_case') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-plus"></i>
+                        Create Your First Case
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

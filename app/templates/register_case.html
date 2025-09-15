@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form_styles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simple_upload.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="registration-container">
+    <!-- Header Section -->
+    <div class="registration-header">
+        <div class="registration-badge">Missing Person Registration</div>
+        <h1 class="registration-title">Register a Missing Person Case</h1>
+        <p class="registration-subtitle">
+            Provide comprehensive information to help our AI-powered system locate missing persons effectively.
+        </p>
+    </div>
+
+    <!-- Guidelines Section -->
+    <div class="guidelines-section">
+        <h3 class="guidelines-title">
+            <span>📋</span> Guidelines for an Effective Report
+        </h3>
+        <ul class="guidelines-list">
+            <li>Provide the most recent information available</li>
+            <li>Clear, front-facing photos significantly increase the chances of a match</li>
+            <li>Be as detailed as possible in the 'Distinguishing Marks' and 'Additional Info' sections</li>
+            <li>Include multiple photos from different angles if available</li>
+            <li>Ensure all contact information is current and accurate</li>
+        </ul>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="registration-form">
+        <form method="POST" enctype="multipart/form-data" id="registrationForm">
+            {{ form.hidden_tag() }}
+            
+            <!-- Section 1: Personal Details -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">1</div>
+                    <h3 class="section-title">Personal Details</h3>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.full_name.id }}">
+                            {{ form.full_name.label.text }}
+                        </label>
+                        {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else ""), placeholder="Enter full legal name") }}
+                        {% if form.full_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.full_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.nickname.id }}">
+                            {{ form.nickname.label.text }}
+                        </label>
+                        {{ form.nickname(class="form-control", placeholder="Known as, goes by") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.age.id }}">
+                            {{ form.age.label.text }}
+                        </label>
+                        {{ form.age(class="form-control" + (" is-invalid" if form.age.errors else ""), min="0", max="120", placeholder="Age in years") }}
+                        {% if form.age.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.age.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.gender.id }}">
+                            {{ form.gender.label.text }}
+                        </label>
+                        {{ form.gender(class="form-select" + (" is-invalid" if form.gender.errors else "")) }}
+                        {% if form.gender.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.gender.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Physical Characteristics -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">2</div>
+                    <h3 class="section-title">Physical Characteristics</h3>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.height_cm.id }}">
+                            {{ form.height_cm.label.text }}
+                        </label>
+                        {{ form.height_cm(class="form-control" + (" is-invalid" if form.height_cm.errors else ""), min="30", max="250", placeholder="Height in centimeters") }}
+                        {% if form.height_cm.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.height_cm.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.weight_kg.id }}">
+                            {{ form.weight_kg.label.text }}
+                        </label>
+                        {{ form.weight_kg(class="form-control" + (" is-invalid" if form.weight_kg.errors else ""), min="2", max="300", placeholder="Weight in kilograms") }}
+                        {% if form.weight_kg.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.weight_kg.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required" for="{{ form.distinguishing_marks.id }}">
+                        {{ form.distinguishing_marks.label.text }}
+                        <span class="help-icon" data-tooltip="Include scars, tattoos, birthmarks, piercings, or any unique physical features" title="Click for help" style="cursor: pointer; transition: all 0.2s;" onclick="alert('Distinguishing Marks Help:\n\nPlease include:\n• Scars and their locations\n• Tattoos (describe or upload photos)\n• Birthmarks\n• Piercings\n• Unique physical features\n• Any other identifying characteristics\n\nThe more detail you provide, the better our AI can identify the person.')" onmouseover="this.style.backgroundColor='#007bff'; this.style.color='white'" onmouseout="this.style.backgroundColor=''; this.style.color=''">?</span>
+                    </label>
+                    {{ form.distinguishing_marks(class="form-control form-textarea" + (" is-invalid" if form.distinguishing_marks.errors else "")) }}
+                    {% if form.distinguishing_marks.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.distinguishing_marks.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Section 3: Contact Information -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">3</div>
+                    <h3 class="section-title">Your Contact Information</h3>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.contact_person_name.id }}">
+                            {{ form.contact_person_name.label.text }}
+                        </label>
+                        {{ form.contact_person_name(class="form-control" + (" is-invalid" if form.contact_person_name.errors else ""), placeholder="Your full name") }}
+                        {% if form.contact_person_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.contact_person_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.contact_person_phone.id }}">
+                            {{ form.contact_person_phone.label.text }}
+                        </label>
+                        {{ form.contact_person_phone(class="form-control" + (" is-invalid" if form.contact_person_phone.errors else ""), placeholder="+1234567890", type="tel") }}
+                        {% if form.contact_person_phone.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.contact_person_phone.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group form-grid-full">
+                        <label class="form-label form-label-required" for="{{ form.contact_person_email.id }}">
+                            {{ form.contact_person_email.label.text }}
+                        </label>
+                        {{ form.contact_person_email(class="form-control" + (" is-invalid" if form.contact_person_email.errors else ""), placeholder="your.email@example.com", type="email") }}
+                        {% if form.contact_person_email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.contact_person_email.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Case Details -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">4</div>
+                    <h3 class="section-title">Case Details</h3>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.last_seen_date.id }}">
+                            {{ form.last_seen_date.label.text }}
+                        </label>
+                        {{ form.last_seen_date(class="form-control" + (" is-invalid" if form.last_seen_date.errors else ""), type="date") }}
+                        {% if form.last_seen_date.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.last_seen_date.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label-required" for="{{ form.last_seen_location.id }}">
+                            {{ form.last_seen_location.label.text }}
+                        </label>
+                        {{ form.last_seen_location(class="form-control" + (" is-invalid" if form.last_seen_location.errors else ""), placeholder="Street address, city, landmarks") }}
+                        {% if form.last_seen_location.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.last_seen_location.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.additional_info.id }}">
+                        {{ form.additional_info.label.text }}
+                        <span class="help-icon" data-tooltip="Include circumstances of disappearance, mental state, medical conditions, or any other relevant information" title="Click for help" style="cursor: pointer; transition: all 0.2s;" onclick="alert('Additional Information Help:\n\nPlease include:\n• Circumstances of disappearance\n• Last known activities\n• Mental state or conditions\n• Medical conditions or medications\n• Clothing worn when last seen\n• Behavioral patterns\n• Places they might go\n• People they might contact\n\nThis information helps our AI and search teams.')" onmouseover="this.style.backgroundColor='#007bff'; this.style.color='white'" onmouseout="this.style.backgroundColor=''; this.style.color=''">?</span>
+                    </label>
+                    {{ form.additional_info(class="form-control form-textarea") }}
+                </div>
+            </div>
+
+            <!-- Section 5: Media Uploads -->
+            <div class="form-section">
+                <div class="section-header">
+                    <div class="section-icon">5</div>
+                    <h3 class="section-title">Photos & Video</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label form-label-required" for="{{ form.photos.id }}">
+                        {{ form.photos.label.text }}
+                    </label>
+                    
+
+                    
+                    <div id="upload-container" class="upload-container">
+                        <label for="{{ form.photos.id }}" class="upload-box add-more-btn">
+                            <i class="fas fa-plus fa-2x mb-2"></i>
+                            <span>Add Photos</span>
+                        </label>
+                        {{ form.photos(style="display: none;", id=form.photos.id, multiple=true, accept="image/*") }}
+                    </div>
+                    
+                    {% if form.photos.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.photos.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.video.id }}">
+                        {{ form.video.label.text }}
+                        <span class="help-icon" data-tooltip="A short video can help AI systems better understand the person's gait, mannerisms, and appearance" title="Click for help" style="cursor: pointer; transition: all 0.2s;" onclick="alert('Video Upload Help:\n\nVideo files can help our AI by showing:\n• How the person walks (gait)\n• Mannerisms and gestures\n• Voice patterns\n• Movement characteristics\n\nSupported formats: MP4, AVI, MOV\nMax size: 50MB\n\nTip: Clear, well-lit videos work best!')" onmouseover="this.style.backgroundColor='#007bff'; this.style.color='white'" onmouseout="this.style.backgroundColor=''; this.style.color=''">?</span>
+                    </label>
+                    <div class="file-upload-section" onclick="document.getElementById('{{ form.video.id }}').click()">
+                        <div class="file-upload-icon">🎥</div>
+                        <div class="file-upload-text">Click to upload video (optional)</div>
+                        <div class="file-upload-hint">MP4, AVI, MOV files up to 50MB</div>
+                        {{ form.video(class="file-input", id=form.video.id) }}
+                    </div>
+                    {% if form.video.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.video.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Submit Section -->
+    <div class="submit-section">
+        {{ form.submit(class="btn-submit", form="registrationForm") }}
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+        <p class="help-text">
+            Having trouble with this form? Please reach out to us via our 
+            <a href="{{ url_for('main.contact') }}" class="help-link">Contact & Help page</a>.
+        </p>
+    </div>
+</div>
+
+<script>
+// Form enhancement JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // File upload drag and drop functionality
+    const fileUploadSections = document.querySelectorAll('.file-upload-section');
+    
+    fileUploadSections.forEach(section => {
+        section.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        section.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        
+        section.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const fileInput = this.querySelector('input[type="file"]');
+            if (fileInput && e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileDisplay(fileInput);
+            }
+        });
+    });
+    
+    // Update file display when files are selected
+    function updateFileDisplay(input) {
+        const section = input.closest('.file-upload-section');
+        if (!section) return; // Skip if not a file-upload-section
+        
+        const textElement = section.querySelector('.file-upload-text');
+        const hintElement = section.querySelector('.file-upload-hint');
+        
+        if (textElement && hintElement && input.files.length > 0) {
+            if (input.files.length === 1) {
+                textElement.textContent = input.files[0].name;
+            } else {
+                textElement.textContent = `${input.files.length} files selected`;
+            }
+            hintElement.textContent = 'Click to change files';
+        }
+    }
+    
+    // Add change event listeners to file inputs
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function() {
+            updateFileDisplay(this);
+        });
+    });
+    
+    // Form submission loading state
+    const form = document.getElementById('registrationForm');
+    const submitBtn = document.querySelector('.btn-submit');
+    
+    form.addEventListener('submit', function() {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        form.classList.add('form-loading');
+    });
+    
+    // Auto-resize textareas
+    document.querySelectorAll('.form-textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('photos');
+    const uploadContainer = document.getElementById('upload-container');
+    const addMoreButton = uploadContainer.querySelector('label');
+    let selectedFiles = [];
+    
+    fileInput.addEventListener('change', function(event) {
+        const files = Array.from(event.target.files);
+        selectedFiles = selectedFiles.concat(files.filter(f => f.type.match('image.*')));
+        refreshPreviews();
+    });
+    
+    function refreshPreviews() {
+        const existingPreviews = uploadContainer.querySelectorAll('.image-preview-wrapper');
+        existingPreviews.forEach(preview => preview.remove());
+        
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewWrapper = document.createElement('div');
+                previewWrapper.className = 'image-preview-wrapper upload-box image-preview';
+                
+                const imageElement = document.createElement('img');
+                imageElement.src = e.target.result;
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '×';
+                deleteButton.className = 'delete-btn';
+                deleteButton.type = 'button';
+                deleteButton.title = 'Remove photo';
+                
+                deleteButton.onclick = function() {
+                    selectedFiles.splice(index, 1);
+                    updateFileInput();
+                    refreshPreviews();
+                };
+                
+                previewWrapper.appendChild(imageElement);
+                previewWrapper.appendChild(deleteButton);
+                uploadContainer.insertBefore(previewWrapper, addMoreButton);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function updateFileInput() {
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => dt.items.add(file));
+        fileInput.files = dt.files;
+    }
+
+});
+</script>
+{% endblock %}

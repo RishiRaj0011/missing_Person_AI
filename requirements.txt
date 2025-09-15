@@ -1,0 +1,49 @@
+# Web & App Framework
+flask==3.0.0
+flask-sqlalchemy==3.1.1
+flask-migrate==4.0.7
+flask-wtf==1.2.1
+flask-login==0.6.3
+flask-bcrypt==1.0.1
+python-dotenv==1.0.1
+gunicorn>=22.0.0
+werkzeug==3.0.1
+
+# Background Tasks
+celery==5.3.4
+redis==5.0.1
+kombu==5.3.4
+
+# AI & Vision (Fixed security vulnerabilities)
+opencv-python==4.8.1.78
+face_recognition==1.3.0
+Pillow==10.1.0
+numpy==1.25.2
+scikit-learn==1.5.0
+
+
+# Database
+psycopg2-binary==2.9.9
+
+# Security & Validation
+WTForms==3.1.1
+email-validator==2.1.0
+validators==0.22.0
+itsdangerous==2.1.2
+markupsafe==2.1.3
+bleach==6.1.0
+
+# File Handling & Utils
+filetype==1.2.0
+
+# Cloud Storage
+boto3==1.34.0
+
+# Development & Testing
+flask-debugtoolbar==0.13.1
+pytest==7.4.3
+pytest-flask==1.3.0
+
+# Production
+gevent==23.9.1
+eventlet==0.33.3

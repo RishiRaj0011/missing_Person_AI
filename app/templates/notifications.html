@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { font-family: 'Inter', sans-serif; }
+
+.notifications-header {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.notification-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.notification-card:hover { transform: translateY(-2px); }
+
+.notification-type {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.type-info { background: #3b82f6; }
+.type-success { background: #10b981; }
+.type-warning { background: #f59e0b; }
+.type-danger { background: #ef4444; }
+
+.notification-unread {
+    border-left: 4px solid #3b82f6;
+    background: #f8fafc;
+}
+
+.notification-read {
+    border-left: 4px solid #e5e7eb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">🔔 Your Notifications</h1>
+                <p class="mb-0">Messages and updates from the admin team</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">📬 All Messages</h5>
+                    <span class="badge bg-primary">{{ notifications|length }} total</span>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                        <div class="notification-card {% if not notification.is_read %}notification-unread{% else %}notification-read{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="notification-type type-{{ notification.type }}"></span>
+                                            <h6 class="mb-0">{{ notification.title }}</h6>
+                                            {% if not notification.is_read %}
+                                                <span class="badge bg-primary ms-2">New</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-muted mb-2">{{ notification.message }}</p>
+                                        <div class="d-flex align-items-center text-muted">
+                                            <small>
+                                                <i class="fas fa-clock"></i> {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                                {% if notification.sender %}
+                                                    • <i class="fas fa-user"></i> From: {{ notification.sender.username }}
+                                                {% else %}
+                                                    • <i class="fas fa-cog"></i> System Message
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No notifications yet</h5>
+                            <p class="text-muted">You'll receive notifications here when admins send you messages or when there are important system updates.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    {% if notifications %}
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ notifications|length }}</h3>
+                    <p class="mb-0">Total Messages</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ notifications|selectattr('sender')|list|length }}</h3>
+                    <p class="mb-0">From Admin</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ notifications|rejectattr('sender')|list|length }}</h3>
+                    <p class="mb-0">System Messages</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

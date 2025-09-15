@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Missing Person Finder{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhancements.css') }}">
+</head>
+<body>
+    <nav class="main-navbar">
+        <div class="navbar-container">
+            <!-- Brand -->
+            <a href="{{ url_for('main.index') }}" class="navbar-brand" title="Go to Homepage" style="transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <div class="brand-icon">
+                    <i class="fas fa-search-location"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">Missing Person Finder</span>
+                    <span class="brand-tagline">AI-Powered Search</span>
+                </div>
+            </a>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <!-- Navigation Menu -->
+            <div class="navbar-menu" id="navbarMenu">
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="{{ url_for('main.index') }}" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('main.register_case') }}" class="nav-link">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>New Case</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('main.profile') }}" class="nav-link">
+                                <i class="fas fa-folder-open"></i>
+                                <span>My Cases</span>
+                            </a>
+                        </li>
+                        {% if current_user.is_admin %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.dashboard') }}" class="nav-link admin-link">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Admin</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <li class="nav-item">
+                        <a href="{{ url_for('main.about') }}" class="nav-link">
+                            <i class="fas fa-info-circle"></i>
+                            <span>About</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('main.contact') }}" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contact</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- User Menu -->
+                <div class="user-menu">
+                    {% if current_user.is_authenticated %}
+                        <div class="user-profile" onclick="toggleUserMenu()">
+                            <div class="user-avatar">
+                                {{ current_user.username[0].upper() }}
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">{{ current_user.username }}</span>
+                                <span class="user-role">{{ 'Admin' if current_user.is_admin else 'User' }}</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userMenuDropdown">
+                            <a href="{{ url_for('main.profile') }}" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </a>
+                            <a href="{{ url_for('main.dashboard') }}" class="dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('main.logout') }}" class="dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="auth-buttons">
+                            <a href="{{ url_for('main.login') }}" class="btn-login">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </a>
+                            <a href="{{ url_for('main.register') }}" class="btn-register">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Register</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h5>Missing Person Finder</h5>
+                    <p>Advanced AI-powered platform helping reunite families worldwide. Trusted by law enforcement agencies and humanitarian organizations.</p>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <a href="https://twitter.com/missingpersonfinder" target="_blank" style="color: #9ca3af; font-size: 1.25rem; transition: color 0.3s;" onmouseover="this.style.color='#1da1f2'" onmouseout="this.style.color='#9ca3af'" title="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://facebook.com/missingpersonfinder" target="_blank" style="color: #9ca3af; font-size: 1.25rem; transition: color 0.3s;" onmouseover="this.style.color='#4267b2'" onmouseout="this.style.color='#9ca3af'" title="Like us on Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://linkedin.com/company/missingpersonfinder" target="_blank" style="color: #9ca3af; font-size: 1.25rem; transition: color 0.3s;" onmouseover="this.style.color='#0077b5'" onmouseout="this.style.color='#9ca3af'" title="Connect on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h5>Platform</h5>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}">Dashboard</a>
+                        <a href="{{ url_for('main.register_case') if current_user.is_authenticated else url_for('main.register') }}">Register Case</a>
+                        <a href="{{ url_for('main.about') }}">How It Works</a>
+                        <a href="{{ url_for('main.about') }}">Success Stories</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h5>Support</h5>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{{ url_for('main.contact') }}">Help Center</a>
+                        <a href="{{ url_for('main.contact') }}">Contact Us</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h5>Company</h5>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{{ url_for('main.about') }}">About Us</a>
+                        <a href="#">Careers</a>
+                        <a href="#">Press</a>
+                        <a href="#">Partners</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Missing Person Finder. All rights reserved. | Helping reunite families with AI technology.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+        
+        // User menu toggle
+        function toggleUserMenu() {
+            document.getElementById('userMenuDropdown').classList.toggle('active');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('userMenuDropdown')?.classList.remove('active');
+            }
+            if (!e.target.closest('.navbar-menu') && !e.target.closest('.mobile-menu-toggle')) {
+                document.getElementById('navbarMenu')?.classList.remove('active');
+                document.getElementById('mobileMenuToggle')?.classList.remove('active');
+            }
+        });
+        
+        // Highlight active nav item
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
